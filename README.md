@@ -6,6 +6,14 @@ Prepared by Michele Burns, October 2026.
 
 Live page: https://micheleburns74-prog.github.io/recruiting-agent-proposal/
 
+## Preview
+
+![Overview of the proposal](images/01-overview.jpg)
+
+![Comp benchmark demo](images/02-comp-benchmark.jpg)
+
+![EU intake demo](images/03-eu-intake.jpg)
+
 ## What the proposal covers
 
 1. **Comp benchmark agent.** Type a role and location and get a benchmark chart and one-page summary, with the internal salary midpoint shown next to market pay.
