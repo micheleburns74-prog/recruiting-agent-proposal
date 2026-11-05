@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Recruiting Agent Proposal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: five stacked walkthrough cards, each with a numbered step list beside a small animated stage. */
+:root {
+  --bg: #F5F0E6;
+  --surface: #FFFDF8;
+  --ink: #14233A;
+  --muted: #5C6678;
+  --line: #DCD2BF;
+  --accent: #1F4E79;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #E2EBF4;
+  --warn: #8F6428;
+  --warn-soft: #F1E4CC;
+  --busy: #EAE2D0;
+  --seg2: #C4AC7C;
+  --seg3: #8DA8C5;
+  --seg4: #DDD1B6;
+  --font-body: Cambria, 'Times New Roman', Times, serif;
+  --font-mono: Cambria, 'Times New Roman', Times, serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1724;
+  --surface: #172236;
+  --ink: #EDE8DC;
+  --muted: #A8B1C2;
+  --line: #2B3A52;
+  --accent: #7FAEE0;
+  --accent-ink: #0B1626;
+  --accent-soft: #1F3352;
+  --warn: #D9B27C;
+  --warn-soft: #3A2F1D;
+  --busy: #24324A;
+  --seg2: #A88B5A;
+  --seg3: #5B7FA8;
+  --seg4: #3A4A63;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1724;
+  --surface: #172236;
+  --ink: #EDE8DC;
+  --muted: #A8B1C2;
+  --line: #2B3A52;
+  --accent: #7FAEE0;
+  --accent-ink: #0B1626;
+  --accent-soft: #1F3352;
+  --warn: #D9B27C;
+  --warn-soft: #3A2F1D;
+  --busy: #24324A;
+  --seg2: #A88B5A;
+  --seg3: #5B7FA8;
+  --seg4: #3A4A63;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 16.5px/1.55 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 56px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+h1 { font-size: clamp(28px, 5vw, 40px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 12px; text-wrap: balance; }
+.lede { color: var(--muted); max-width: 64ch; margin: 0 0 14px; }
+.pill {
+  display: inline-block; margin: 0 0 28px; padding: 4px 12px; border: 1px solid var(--line);
+  border-radius: 999px; font: 500 12px var(--font-mono); color: var(--muted); background: var(--surface);
+}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.scene { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; margin: 0 0 22px; overflow: hidden; }
+.scene-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.eyebrow { font: 500 11.5px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 2px; }
+h2 { font-size: 20px; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.replay {
+  display: inline-flex; gap: 8px; align-items: center; border: 1px solid var(--line); background: transparent;
+  color: var(--ink); border-radius: 999px; padding: 7px 14px; font: 600 13px var(--font-body); cursor: pointer; flex: none;
+}
+.replay:hover { border-color: var(--accent); color: var(--accent); }
+.replay svg { width: 14px; height: 14px; }
+
+.scene-body { display: grid; grid-template-columns: 230px minmax(0, 1fr); }
+.steps { list-style: none; margin: 0; padding: 20px; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 14px; counter-reset: s; }
+.steps li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; color: var(--muted); font-size: 14px; line-height: 1.4; transition: color 0.3s; }
+.steps li::before {
+  counter-increment: s; content: counter(s); width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line);
+  display: grid; place-items: center; font: 500 12px var(--font-mono); transition: background 0.3s, border-color 0.3s, color 0.3s;
+}
+.steps li.active { color: var(--ink); font-weight: 600; }
+.steps li.active::before { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.steps li.done { color: var(--ink); }
+.steps li.done::before { content: "\2713"; border-color: var(--accent); color: var(--accent); }
+.stage { padding: 20px; min-width: 0; }
+.foot { margin: 14px 0 0; color: var(--muted); font-size: 12.5px; }
+
+[data-s] { transition: opacity 0.45s ease, transform 0.45s ease; transition-delay: var(--d, 0ms); }
+.armed [data-s] { opacity: 0; transform: translateY(8px); }
+.armed [data-s].in { opacity: 1; transform: none; }
+
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start; }
+.stack { display: grid; gap: 14px; min-width: 0; }
+.card { border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0; }
+.card h3 { margin: 0 0 2px; font-size: 15px; }
+.sample { margin: 0 0 10px; color: var(--muted); font-size: 12.5px; }
+
+/* Scene 1 */
+.chat { display: flex; flex-direction: column; gap: 10px; }
+.msg { padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line); font-size: 14px; max-width: 90%; min-height: 40px; }
+.msg.user { align-self: flex-end; background: var(--accent-soft); border-color: transparent; }
+.msg.agent { align-self: flex-start; }
+.tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin: 4px 0 6px; }
+.tab { border: 0; background: transparent; color: var(--muted); padding: 6px 12px; font: 600 12.5px var(--font-body); cursor: pointer; }
+.tab.on { background: var(--accent); color: var(--accent-ink); }
+.chart { position: relative; height: 122px; margin: 6px 14px 0; }
+.track { position: absolute; left: 0; right: 0; top: 62px; height: 2px; background: var(--line); }
+.range { position: absolute; top: 53px; height: 20px; border-radius: 4px; background: var(--accent-soft); border: 1.5px solid var(--accent); transition: left 0.7s ease, width 0.7s ease; }
+.median { position: absolute; top: 48px; height: 30px; width: 2px; margin-left: -1px; background: var(--accent); transition: left 0.7s ease; }
+.company-mark { position: absolute; top: 56px; width: 14px; height: 14px; margin-left: -7px; background: var(--ink); transform: rotate(45deg); transition: left 0.7s ease; }
+.lab { position: absolute; transform: translateX(-50%); text-align: center; font: 500 11.5px/1.25 var(--font-mono); color: var(--muted); transition: left 0.7s ease; white-space: nowrap; }
+.lab b { display: block; color: var(--ink); font-weight: 600; }
+.lab.top { top: 4px; }
+.lab.bot { top: 84px; }
+.finding { margin: 8px 0 0; font-weight: 600; font-size: 14px; }
+.view-note { margin: 0; color: var(--muted); font-size: 12.5px; }
+
+/* Scene 2 */
+.form { display: grid; gap: 10px; }
+.field { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 10px; align-items: center; font-size: 13.5px; }
+.field label { color: var(--muted); }
+.val { min-height: 32px; border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; font-size: 14px; background: var(--bg); overflow-wrap: anywhere; }
+.go { justify-self: start; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; padding: 8px 16px; font: 600 14px var(--font-body); transition: transform 0.15s, filter 0.15s; }
+.go.pressed { transform: scale(0.95); filter: brightness(0.9); }
+.out { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.tick { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 13px; }
+.out strong { display: block; font-size: 14px; }
+.out span { display: block; color: var(--muted); font: 12px/1.45 var(--font-mono); overflow-wrap: anywhere; }
+.rulebar { background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; }
+
+/* Scene 3 */
+.tl { display: grid; gap: 12px; max-width: 680px; }
+.tl-item { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 12px; align-items: start; }
+.tl-when { font: 500 12px var(--font-mono); color: var(--muted); padding-top: 10px; }
+.tl-card { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font-size: 14px; }
+.tl-card.reply { background: var(--warn-soft); border-color: transparent; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--accent); color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 4px 12px; font: 600 12.5px var(--font-body); }
+
+/* Scene 4 */
+.srcs { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.src { border: 1px dashed var(--muted); border-radius: 8px; padding: 6px 12px; font: 500 12.5px var(--font-mono); }
+.arrow { color: var(--muted); font: 500 14px var(--font-mono); }
+.dash { border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+.dash-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.dash-head h3 { margin: 0; font-size: 15px; }
+.tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.tag { border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; font: 500 12px var(--font-mono); color: var(--muted); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.tile { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.tile small { display: block; color: var(--muted); font-size: 12px; }
+.tile b { display: block; font-size: 24px; line-height: 1.25; font-variant-numeric: tabular-nums; }
+.tile i { font-style: normal; color: var(--muted); font-size: 12px; }
+.mix-title { margin: 0 0 6px; font: 600 12px var(--font-mono); color: var(--muted); }
+.mix { display: flex; height: 26px; border-radius: 6px; overflow: hidden; background: var(--busy); }
+.seg { height: 100%; width: 0; flex: none; box-shadow: inset -2px 0 0 var(--surface); transition: width 0.8s ease; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; font: 500 12px var(--font-mono); }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; background: var(--c); }
+.dash-note { margin: 14px 0 0; font-size: 13.5px; font-weight: 600; }
+
+/* Scene 5 */
+.avail { display: grid; grid-template-columns: 84px repeat(8, minmax(26px, 1fr)); gap: 3px; font-size: 12.5px; overflow-x: auto; }
+.hd { font: 500 11.5px var(--font-mono); color: var(--muted); text-align: center; }
+.who { align-self: center; }
+.cell { height: 26px; border-radius: 4px; transition: background 0.4s, outline-color 0.4s; }
+.cell.free { background: var(--accent-soft); }
+.cell.busy { background: var(--busy); background-image: repeating-linear-gradient(135deg, transparent 0 4px, var(--line) 4px 5px); }
+.cell.common { background: var(--accent); outline: 2px solid var(--accent); outline-offset: 1px; }
+.prompt { display: inline-block; border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px; font-size: 13.5px; background: var(--accent-soft); margin-bottom: 12px; }
+.row { display: grid; grid-template-columns: 80px minmax(0, 1fr); gap: 8px; font-size: 13.5px; margin: 6px 0; }
+.row span:first-child { color: var(--muted); }
+.teams { display: inline-flex; gap: 8px; align-items: center; background: var(--accent); color: var(--accent-ink); border-radius: 6px; padding: 6px 12px; font: 600 13px var(--font-body); }
+.inv-title { margin: 0 0 8px; font-weight: 700; }
+
+.fin { width: 100%; font: 14px var(--font-body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; }
+
+.chk { display: inline-flex; gap: 6px; align-items: center; color: var(--ink) !important; cursor: pointer; font-size: 13.5px; }
+.bars { margin: 12px 0 6px; }
+.brow { position: relative; height: 62px; margin: 0 10px; }
+.brow .lbl { position: absolute; left: 0; top: 0; font: 500 11.5px var(--font-mono); color: var(--muted); }
+.bar { position: absolute; top: 20px; height: 16px; border-radius: 4px; transition: left 0.6s ease, width 0.6s ease; }
+.bar.mkt { background: var(--accent-soft); border: 1.5px solid var(--accent); }
+.bar.wd { background: var(--busy); border: 1.5px solid var(--muted); }
+.ptick { position: absolute; top: 14px; height: 28px; width: 2px; margin-left: -1px; transition: left 0.6s ease; }
+.ptick.med { background: var(--accent); }
+.ptick.mid { background: var(--warn); }
+.tl2 { position: absolute; top: 44px; transform: translateX(-50%); font: 500 11px var(--font-mono); color: var(--ink); white-space: nowrap; transition: left 0.6s ease; }
+.kv { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 6px 10px; font-size: 14px; margin-top: 4px; }
+.kv span { color: var(--muted); }
+.kv b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.src-note { margin: 12px 0 0 !important; color: var(--muted); font-size: 12.5px; }
+.src-note b { color: var(--ink); }
+
+.card.bench-card { padding: 18px 20px; }
+.ctl { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 12px; }
+.ctl label { display: block; margin: 0 0 4px; color: var(--muted); font-size: 12.5px; }
+.ctl select { width: 100%; }
+.chks { display: grid; gap: 8px; }
+.chks .chk { display: flex; }
+.chks input { width: 16px; height: 16px; accent-color: var(--accent); margin: 0; }
+.bars { margin: 18px 0 14px; display: grid; gap: 14px; }
+.brow { position: relative; height: 70px; margin: 0; }
+.brow .lbl { position: absolute; left: 0; top: 0; }
+.brow .inner { position: absolute; left: 8%; right: 8%; top: 0; bottom: 0; }
+.brow .ptick { margin-left: -1px; }
+.bar { top: 24px; height: 18px; }
+.ptick { top: 18px; height: 30px; }
+.tl2 { top: 48px; }
+.kv { margin-top: 0; padding-top: 14px; border-top: 1px solid var(--line); row-gap: 10px; align-items: baseline; }
+.kv span { font-size: 13.5px; }
+.finding { margin: 16px 0 0 !important; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); font-weight: 600; font-size: 14px; line-height: 1.5; }
+.src-note { margin: 14px 0 0 !important; padding-top: 14px; border-top: 1px solid var(--line); }
+.view-note { margin: 10px 0 0 !important; }
+#s2 .pair { grid-template-columns: minmax(0, 1fr); }
+#s2 .card.form { max-width: 560px; }
+#s2 .out { align-items: start; }
+.out > div:last-child { min-width: 0; }
+.out span { overflow-wrap: break-word !important; }
+.trk { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 16px; margin-top: 8px; }
+.trk small { display: block; color: var(--muted); font-size: 11.5px; }
+.trk b { display: block; font-size: 13.5px; font-weight: 600; overflow-wrap: break-word; }
+#s1 .pair { grid-template-columns: minmax(0, 1fr); }
+#s1 .chat .msg { max-width: 100%; }
+.bgrid { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 1.5fr); gap: 8px 36px; margin-top: 4px; align-items: start; }
+.bleft, .bright { min-width: 0; }
+.bright .bars { margin-top: 12px; }
+@media (max-width: 760px) { .bgrid { grid-template-columns: minmax(0, 1fr); } }
+.try { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 4px; }
+.try label { color: var(--muted); font-size: 13px; }
+select, .opt { font: 600 13px var(--font-body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.opt:hover, select:hover { border-color: var(--accent); }
+.opt.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.outcome { margin: 10px 0 0; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 14px; max-width: 680px; min-height: 44px; }
+.tryhead { margin: 28px 0 10px; font: 600 12px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.steps li { cursor: pointer; }
+@media (max-width: 760px) {
+  .scene-body { grid-template-columns: 1fr; }
+  .steps { border-right: 0; border-bottom: 1px solid var(--line); }
+  .scene-head { align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+
+
+<style>
+.wrap { max-width: 980px; }
+.sec { margin: 44px 0 0; }
+.sec h2.sh { font-size: clamp(22px, 3.4vw, 28px); letter-spacing: -0.015em; margin: 0 0 10px; text-wrap: balance; }
+.sec p { max-width: 70ch; margin: 0 0 12px; }
+.sec .meta { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+.sec .scene { max-width: none; margin-top: 18px; }
+.callout { max-width: 70ch; border-left: 3px solid var(--accent); padding: 2px 0 2px 14px; margin: 0 0 12px; }
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); margin: 8px 0 14px; }
+table.t { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 14px; }
+table.t th, table.t td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+table.t th { font: 600 12px var(--font-mono); letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+table.t tr:last-child td { border-bottom: 0; }
+.flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 14px 0; }
+.node { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.node b { display: block; margin-bottom: 2px; }
+.node span { color: var(--muted); font-size: 13px; }
+.node.hub { border-color: var(--accent); background: var(--accent-soft); }
+.phases { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin: 14px 0; }
+.phase { background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: 10px; padding: 14px 16px; }
+.phase h3 { margin: 0 0 2px; font-size: 16px; }
+.phase .when { color: var(--muted); font: 500 12px var(--font-mono); margin: 0 0 10px; }
+.phase ul { margin: 0; padding-left: 18px; }
+.phase li { margin: 4px 0; font-size: 14px; }
+.hero { margin-bottom: 8px; }
+.byline { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+.whoask { font-weight: 600; margin: 6px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <h1>Recruiting Agent Proposal</h1>
+    <p class="byline">October 15, 2026 · Michele Burns</p>
+    <p class="lede">One recruiting agent, built in stages, to cut manual work in US and EU hiring and give leadership data it can trust.</p>
+    <p class="pill">Demos below use sample data. Nothing here is connected to any company systems.</p>
+  </header>
+
+  <section class="sec" id="glance">
+    <h2 class="sh">The proposal at a glance</h2>
+    <p>We want one recruiting agent that US and EU recruiters can type into, backed by Workday and LinkedIn data, so routine work happens automatically and every number leaders see is consistent.</p>
+    <p>Today recruiters re-enter the same data in Excel, SharePoint and Workday, chase candidates by hand, and rebuild comp benchmarks from scratch. That costs time, invites errors, and leaves candidates waiting. The five pieces below use Microsoft tools most companies already have, and none needs a Workday change to start.</p>
+    <div class="tablewrap"><table class="t"><thead><tr><th scope="col">Piece</th><th scope="col">What it does</th><th scope="col">Main benefit</th><th scope="col">Effort (estimate)</th></tr></thead><tbody><tr><td>1. Comp benchmark agent</td><td>Type a role and location, get a benchmark chart and one-page summary</td><td>Faster, consistent pay decisions</td><td>Medium</td></tr><tr><td>2. EU intake, enter once</td><td>One form fills the tracker, the folder and the Workday checklist</td><td>Less re-entry, GDPR steps built in</td><td>Medium</td></tr><tr><td>3. Automatic follow-ups</td><td>Sends 7-day follow-ups and tags "not interested" replies</td><td>Hours back, fewer lost candidates</td><td>Low</td></tr><tr><td>4. Recruiting dashboard</td><td>Workday and LinkedIn stats in one place, no double counting</td><td>One set of numbers leaders trust</td><td>High, long-term</td></tr><tr><td>5. Interview scheduling</td><td>Schedule once in Workday; the Outlook invite arrives with the Teams link and the candidate on it</td><td>Fewer steps and fewer missed invites</td><td>Low to medium, depends on Workday settings</td></tr></tbody></table></div>
+  </section>
+
+  <section class="sec" id="fit">
+    <h2 class="sh">How the systems fit together</h2>
+    <p>Workday stays the system of record, and LinkedIn feeds it through a built-in sync.</p>
+    <div class="flow">
+      <div class="node"><b>LinkedIn</b><span>Candidates sync to Workday through Recruiter System Connect</span></div>
+      <div class="node"><b>Workday</b><span>System of record for candidates and requisitions</span></div>
+      <div class="node"><b>Market data</b><span>Pay data we pull for each role and country</span></div>
+      <div class="node hub"><b>Recruiting agent</b><span>Built in Copilot Studio. Reads Workday and market data, then prepares and drafts</span></div>
+      <div class="node"><b>Outlook</b><span>Follow-ups and interview invites</span></div>
+      <div class="node"><b>SharePoint</b><span>EU folders and the benchmark library</span></div>
+      <div class="node"><b>Dashboard</b><span>One set of numbers for leadership</span></div>
+    </div>
+    <p>LinkedIn candidates reach Workday through Recruiter System Connect (RSC), so the agent only needs to read Workday. The agent prepares and drafts, and a person approves what goes out.</p>
+  </section>
+
+  <section class="sec" id="p1">
+    <h2 class="sh">1. Comp benchmark agent</h2>
+    <p>Anyone on the team types a role and location, and the agent returns a benchmark chart and one-page summary using the approved rules.</p>
+    <p><b>Why it is a good idea:</b> Benchmarks are rebuilt by hand each time, and our market data is weak. A shared agent applies the same method and data every time and saves each result, so the next request starts from what already exists.</p>
+    <p><b>What the result shows:</b> base pay and bonus broken out, the total, the years of experience it was based on, and where on the web each figure came from. It also shows the Workday salary range and midpoint, because offers in this example usually stay at or below midpoint. If requirements are loosened, such as location, industry or certifications, it shows how much the pay goes down.</p>
+    <p><b>What it needs:</b> market data for the role and country, access to the Workday pay range (ranges, not individual salaries), and written rules from Total Rewards.</p>
+    <section class="scene" id="s1" aria-labelledby="t1">
+    <div class="scene-head">
+      <div><p class="eyebrow">Interactive demo</p><h2 id="t1">Try it: comp benchmark</h2></div>
+      <button class="replay" type="button" aria-label="Replay the comp benchmark walkthrough"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.6-3.7M3 2.5v3h3"/></svg>Replay</button>
+    </div>
+    <div class="scene-body">
+      <ol class="steps">
+        <li data-step="1">Type the role, location and years of experience</li>
+        <li data-step="2">The agent reads the job description and the Workday range</li>
+        <li data-step="3">It pulls market data and records where each figure came from</li>
+        <li data-step="4">Base, bonus and total pay appear next to the Workday midpoint</li>
+        <li data-step="5">Loosen requirements to see how the pay goes down</li>
+      </ol>
+      <div class="stage">
+        <div class="pair">
+          <div class="chat">
+            <div class="msg user" data-s="1"><span data-type="Benchmark a Senior Controls Engineer in Madrid, 6 to 9 years, matching everything on the job description">Benchmark a Senior Controls Engineer in Madrid, 6 to 9 years, matching everything on the job description</span></div>
+            <div class="msg agent" data-s="2">Reading the job description and the Workday pay range for this role.</div>
+            <div class="msg agent" data-s="3">Pulling market base and bonus data. I will list the source for each figure.</div>
+            <div class="msg agent" data-s="4">Done. Result saved to the benchmark library.</div>
+          </div>
+          <div class="card bench-card" data-s="4">
+            <h3 class="role">Senior Controls Engineer</h3>
+            <p class="sample cur">Sample data, not real figures.</p>
+            <div class="bgrid"><div class="bleft"><div class="ctl">
+              <div><label for="city">Location</label><select id="city"><option value="Madrid">Madrid, Spain</option><option value="Berlin">Berlin, Germany</option><option value="Austin">Austin, Texas</option></select></div>
+              <div><label for="yrs">Experience</label><select id="yrs"><option value="a">3 to 5 years</option><option value="b" selected>6 to 9 years</option><option value="c">10+ years</option></select></div>
+            </div>
+            <p class="tryhead" style="margin:18px 0 8px">Job description requirements</p>
+            <div class="chks">
+              <label class="chk"><input type="checkbox" id="l-loc"> Loosen location</label>
+              <label class="chk"><input type="checkbox" id="l-ind"> Loosen industry</label>
+              <label class="chk"><input type="checkbox" id="l-cert"> Loosen certifications</label>
+            </div>
+            <p class="view-note" id="matchnote"></p>
+            </div><div class="bright"><div class="bars" role="img" aria-label="Market base pay range compared with the Workday range and its midpoint">
+              <div class="brow"><span class="lbl">Market base pay</span><div class="inner"><div class="bar mkt"></div><div class="ptick med"></div><span class="tl2 tl-med"></span></div></div>
+              <div class="brow"><span class="lbl">Workday range</span><div class="inner"><div class="bar wd"></div><div class="ptick mid"></div><span class="tl2 tl-mid"></span></div></div>
+            </div>
+            <div class="kv" aria-live="polite">
+              <span>Base pay</span><b id="k-base"></b>
+              <span>Bonus</span><b id="k-bonus"></b>
+              <span>Total cash</span><b id="k-total"></b>
+              <span>Workday range</span><b id="k-wd"></b>
+            </div>
+            </div></div>
+            <p class="finding" id="k-find"></p>
+            <p class="src-note"><b>Where the data came from (sample):</b> LinkedIn Salary, Glassdoor, Indeed job postings, and national pay statistics for the country. The real agent lists the exact page and date for every figure.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+    <p class="meta">The numbers are illustrative. The real agent would show the company's pay ranges next to market data for the same role and country.</p>
+  </section>
+
+  <section class="sec" id="p2">
+    <h2 class="sh">2. EU intake, enter once</h2>
+    <p>One short form captures a candidate's details a single time and creates everything else from it. Today the same details are typed into Excel, a SharePoint folder and Workday. With the form, the tracker row and folder are created automatically, and the Workday steps arrive as a checklist.</p>
+    <p><b>Why it is a good idea:</b> Re-entry costs time and causes mismatches between systems. The form can also build in EU rules, such as consent and retention dates, so they are not left to memory.</p>
+    <p><b>Tracking each candidate through hiring:</b> The tracker row also carries the Req #, hiring manager, the date the EOR contract was sent, the start date, the background check status and the offer details (base comp, bonus, RSUs and sign-on), so one row shows where every EU candidate stands.</p>
+    <p><b>Third-party vendors:</b> Roles that run through an outside vendor add a vendor branch to the form, with vendor name, req ID and a restricted submission folder.</p>
+    <p><b>Longer term:</b> Ask HRIS whether the missing EU fields can live in Workday itself. If so, Workday becomes the only place to enter data and the Excel tracker goes away.</p>
+    <section class="scene" id="s2" aria-labelledby="t2">
+    <div class="scene-head">
+      <div><p class="eyebrow">Interactive demo</p><h2 id="t2">Try it: EU intake</h2></div>
+      <button class="replay" type="button" aria-label="Replay the EU intake walkthrough"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.6-3.7M3 2.5v3h3"/></svg>Replay</button>
+    </div>
+    <div class="scene-body">
+      <ol class="steps">
+        <li data-step="1">Enter the candidate once</li>
+        <li data-step="2">Submit the form</li>
+        <li data-step="3">The tracker row, folder and Workday checklist are created</li>
+        <li data-step="4">EU consent and retention dates are filled in</li>
+      </ol>
+      <div class="stage">
+        <div class="pair">
+          <div class="card form" data-s="1">
+            <h3>EU candidate intake</h3>
+            <div class="field"><label>Candidate</label><div class="val" data-type="Sample Candidate">Sample Candidate</div></div>
+            <div class="field"><label>Role</label><div class="val" data-type="Senior Controls Engineer">Senior Controls Engineer</div></div>
+            <div class="field"><label>Req #</label><div class="val" data-type="REQ-1042">REQ-1042</div></div>
+            <div class="field"><label>Hiring manager</label><div class="val" data-type="Sample Manager">Sample Manager</div></div>
+            <div class="field"><label>Country</label><div class="val" data-type="Spain">Spain</div></div>
+            <div class="field"><label>Source</label><div class="val" data-type="LinkedIn">LinkedIn</div></div>
+            <div class="field"><label>Outside vendor</label><div class="val" data-type="None">None</div></div>
+            <div class="field"><label>EOR contract sent</label><div class="val" data-type="2026-11-02">2026-11-02</div></div>
+            <div class="field"><label>Start date</label><div class="val" data-type="2027-01-11">2027-01-11</div></div>
+            <div class="field"><label>Background check</label><div class="val" data-type="In progress">In progress</div></div>
+            <div class="field"><label>Base comp</label><div class="val" data-type="85,000 EUR">85,000 EUR</div></div>
+            <div class="field"><label>Bonus</label><div class="val" data-type="10% target">10% target</div></div>
+            <div class="field"><label>RSUs</label><div class="val" data-type="400 units">400 units</div></div>
+            <div class="field"><label>Sign-on</label><div class="val" data-type="5,000 EUR">5,000 EUR</div></div>
+            <button class="go" type="button" tabindex="-1">Submit</button>
+          </div>
+          <div class="stack">
+            <div class="out" data-s="3" style="--d:0ms"><div class="tick">&#10003;</div><div><strong>Excel tracker row added</strong><div class="trk"><div><small>Country</small><b>ES</b></div><div><small>Req #</small><b>REQ-1042</b></div><div><small>Hiring manager</small><b>Sample Manager</b></div><div><small>Candidate</small><b>Sample Candidate</b></div><div><small>Source</small><b>LinkedIn</b></div><div><small>EOR contract sent</small><b>2026-11-02</b></div><div><small>Start date</small><b>2027-01-11</b></div><div><small>Background check</small><b>In progress</b></div><div><small>Base comp</small><b>85,000 EUR</b></div><div><small>Bonus</small><b>10% target</b></div><div><small>RSUs</small><b>400 units</b></div><div><small>Sign-on</small><b>5,000 EUR</b></div></div></div></div>
+            <div class="out" data-s="3" style="--d:180ms"><div class="tick">&#10003;</div><div><strong>SharePoint folder created</strong><span>EU / Spain / Senior Controls Engineer / Sample Candidate</span></div></div>
+            <div class="out" data-s="3" style="--d:360ms"><div class="tick">&#10003;</div><div><strong>Workday checklist ready</strong><span>The Workday steps still to do are listed for you</span></div></div>
+            <div class="rulebar" data-s="4">Consent and retention dates are filled in from the approved EU rules.</div>
+          </div>
+        </div>
+        <p class="tryhead">Try it: fill in your own candidate</p>
+        <form class="card" id="eu-form" style="max-width:680px">
+          <div class="form">
+            <div class="field"><label for="f-name">Candidate</label><input id="f-name" class="fin" type="text" placeholder="Sample Candidate" autocomplete="off"></div>
+            <div class="field"><label for="f-role">Role</label><input id="f-role" class="fin" type="text" placeholder="Senior Controls Engineer" autocomplete="off"></div>
+            <div class="field"><label for="f-req">Req #</label><input id="f-req" class="fin" type="text" placeholder="REQ-1042" autocomplete="off"></div>
+            <div class="field"><label for="f-hm">Hiring manager</label><input id="f-hm" class="fin" type="text" placeholder="Sample Manager" autocomplete="off"></div>
+            <div class="field"><label for="f-country">Country</label><select id="f-country"><option>Spain</option><option>Germany</option><option>France</option><option>Italy</option><option>Poland</option></select></div>
+            <div class="field"><label for="f-source">Source</label><select id="f-source"><option>LinkedIn</option><option>Referral</option><option>Career site</option><option>Outside vendor</option></select></div>
+            <div class="field"><label for="f-eor">EOR contract sent</label><input id="f-eor" class="fin" type="date"></div>
+            <div class="field"><label for="f-start">Start date</label><input id="f-start" class="fin" type="date"></div>
+            <div class="field"><label for="f-bg">Background check</label><select id="f-bg"><option>Not started</option><option>In progress</option><option>Cleared</option><option>Issue found</option></select></div>
+            <div class="field"><label for="f-base">Base comp</label><input id="f-base" class="fin" type="text" placeholder="85,000 EUR" autocomplete="off"></div>
+            <div class="field"><label for="f-bonus">Bonus</label><input id="f-bonus" class="fin" type="text" placeholder="10% target" autocomplete="off"></div>
+            <div class="field"><label for="f-rsu">RSUs</label><input id="f-rsu" class="fin" type="text" placeholder="400 units" autocomplete="off"></div>
+            <div class="field"><label for="f-sign">Sign-on</label><input id="f-sign" class="fin" type="text" placeholder="5,000 EUR" autocomplete="off"></div>
+            <div class="field" id="f-vendor-row" hidden><label for="f-vendor">Vendor name</label><input id="f-vendor" class="fin" type="text" placeholder="Vendor name" autocomplete="off"></div>
+            <button class="go" type="submit">Create everything</button>
+          </div>
+          <div class="stack" id="eu-out" aria-live="polite" style="margin-top:14px"></div>
+        </form>
+      </div>
+    </div>
+  </section>
+  </section>
+
+  <section class="sec" id="p3">
+    <h2 class="sh">3. Automatic follow-ups and reply handling</h2>
+    <p>The agent drafts a follow-up after 7 days of silence, then stops the moment a candidate replies. A person approves drafts at first, and sending can become automatic once the templates are trusted. A "not interested" reply tags the candidate, stops further emails and prepares a note for Workday.</p>
+    <p><b>Why it is a good idea:</b> Follow-ups are routine and easy to forget, and candidates who hear nothing form a poor view of the company. This gives every candidate a consistent response and removes manual tracking.</p>
+    <p><b>Limits to know about:</b> Writing the note straight into Workday needs an integration built by HRIS or IT. Until then the agent prepares the note for a person to paste in. EU candidates need a consent check before anything is sent automatically.</p>
+    <section class="scene" id="s3" aria-labelledby="t3">
+    <div class="scene-head">
+      <div><p class="eyebrow">Interactive demo</p><h2 id="t3">Try it: follow-ups and replies</h2></div>
+      <button class="replay" type="button" aria-label="Replay the follow-up walkthrough"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.6-3.7M3 2.5v3h3"/></svg>Replay</button>
+    </div>
+    <div class="scene-body">
+      <ol class="steps">
+        <li data-step="1">The first email goes out</li>
+        <li data-step="2">No reply after 7 days: a follow-up sends from an approved template</li>
+        <li data-step="3">The candidate replies</li>
+        <li data-step="4">The agent tags the reply and updates the record</li>
+        <li data-step="5">Unclear replies go to the recruiter</li>
+      </ol>
+      <div class="stage">
+        <div class="tl">
+          <div class="tl-item" data-s="1"><div class="tl-when">Day 0</div><div class="tl-card">Email sent to the candidate. Drafted with Copilot and approved by the recruiter.</div></div>
+          <div class="tl-item" data-s="2"><div class="tl-when">Day 7</div><div class="tl-card">No reply yet. Follow-up sent from an approved template.</div></div>
+          <div class="tl-item" data-s="3"><div class="tl-when">Reply</div><div class="tl-card reply">"Thank you, but I have accepted another role."</div></div>
+          <div class="tl-item" data-s="4"><div class="tl-when">Agent</div><div class="tl-card"><div class="chips"><span class="chip">Tagged: not interested</span><span class="chip">All further emails stopped</span><span class="chip">Workday note drafted</span></div></div></div>
+          <div class="tl-item" data-s="5"><div class="tl-when">Unclear reply</div><div class="tl-card">A reply such as "not right now" is not tagged. It goes to the recruiter to decide.</div></div>
+        </div>
+        <p class="tryhead">Try it: how should the candidate reply?</p>
+        <div class="try" id="replies">
+          <button class="opt" type="button" data-r="yes">"Yes, I'm interested"</button>
+          <button class="opt" type="button" data-r="later">"Not right now"</button>
+          <button class="opt" type="button" data-r="no">"Not interested"</button>
+        </div>
+        <p class="outcome" id="outcome" aria-live="polite">Pick a reply to see what the agent does.</p>
+        <p class="foot">Until Workday can accept automatic updates, a person pastes the drafted note into Workday.</p>
+      </div>
+    </div>
+  </section>
+  </section>
+
+  <section class="sec" id="p4">
+    <h2 class="sh">4. Recruiting dashboard (long-term)</h2>
+    <p>Workday and LinkedIn statistics in one place, with each candidate counted once and LinkedIn shown as the source.</p>
+    <p><b>Why it is a good idea:</b> Stats are pulled by hand from two systems today, and applicants who come through LinkedIn can be counted twice. One dashboard gives leadership numbers they can trust, for US and EU roles together.</p>
+    <p><b>Why it is long-term:</b> It depends on turning on LinkedIn Recruiter System Connect, getting a Workday report from HRIS, and agreeing metric definitions. A basic Excel version can come first while those are in progress. It is also the base for a live Workday connection to the agent later.</p>
+    <section class="scene" id="s4" aria-labelledby="t4">
+    <div class="scene-head">
+      <div><p class="eyebrow">Interactive demo</p><h2 id="t4">Try it: recruiting dashboard</h2></div>
+      <button class="replay" type="button" aria-label="Replay the dashboard walkthrough"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.6-3.7M3 2.5v3h3"/></svg>Replay</button>
+    </div>
+    <div class="scene-body">
+      <ol class="steps">
+        <li data-step="1">Workday and LinkedIn data come together</li>
+        <li data-step="2">The key numbers update</li>
+        <li data-step="3">The source mix shows where candidates come from</li>
+        <li data-step="4">Each candidate is counted once</li>
+      </ol>
+      <div class="stage">
+        <div class="srcs" data-s="1"><span class="src">Workday report</span><span class="arrow">+</span><span class="src">LinkedIn via RSC</span><span class="arrow">&rarr;</span><span class="src">One dashboard</span></div>
+        <div class="dash" data-s="2">
+          <div class="dash-head"><h3>Recruiting dashboard</h3><div class="tags"><span class="tag">US and EU</span><span class="tag">Last 90 days</span><span class="tag">Sample data</span></div></div>
+          <div class="tiles">
+            <div class="tile"><small>Open requisitions</small><b data-count="42">42</b><i>US 27, EU 15</i></div>
+            <div class="tile"><small>Time to fill</small><b data-count="38" data-suffix=" days">38 days</b><i>Roles filled</i></div>
+            <div class="tile"><small>Offer acceptance</small><b data-count="82" data-suffix="%">82%</b><i>Offers made</i></div>
+            <div class="tile"><small>Active candidates</small><b data-count="316">316</b><i>Each counted once</i></div>
+          </div>
+          <div data-s="3">
+            <p class="mix-title">Where candidates come from</p>
+            <div class="mix" role="img" aria-label="Source mix: LinkedIn 40 percent, referrals 25, career site 20, agencies 15">
+              <div class="seg" data-w="40" style="width:40%;background:var(--accent)"></div>
+              <div class="seg" data-w="25" style="width:25%;background:var(--seg2)"></div>
+              <div class="seg" data-w="20" style="width:20%;background:var(--seg3)"></div>
+              <div class="seg" data-w="15" style="width:15%;background:var(--seg4)"></div>
+            </div>
+            <div class="legend"><span style="--c:var(--accent)">LinkedIn 40%</span><span style="--c:var(--seg2)">Referrals 25%</span><span style="--c:var(--seg3)">Career site 20%</span><span style="--c:var(--seg4)">Agencies 15%</span></div>
+          </div>
+          <p class="dash-note" data-s="4">A candidate who applies through LinkedIn is counted once, and LinkedIn shows as the source.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+    <p class="meta">The numbers are illustrative, not real figures.</p>
+  </section>
+
+  <section class="sec" id="p5">
+    <h2 class="sh">5. Interview scheduling in one step</h2>
+    <p>Workday should schedule panel interviews directly into Outlook, with the Teams link and the candidate's email already on the invite. Today I schedule in Workday, then open Outlook, add a Teams link, and add the candidate's email by hand. With the integration working, one step in Workday creates the invite for the panel and the candidate, and a single calendar view shows when the panel is free.</p>
+    <p><b>What Workday supports:</b> Workday has a setting to turn on Microsoft Outlook interview scheduling, which lets recruiters see interviewer availability and responses, and an option to add a web conference link once a web conference integration is set up. See Workday's <a href="https://doc.workday.com/admin-guide/en-us/human-capital-management/recruiting/interviews/zdz1514404748614.html" target="_blank" rel="noopener">interview scheduling documentation</a>. These are settings HRIS enables, so the first step is finding out what is already on at the company.</p>
+    <p><b>To confirm:</b> whether the candidate receives the calendar invite directly or an email from Workday, and whether the Teams link needs its own web conference setup.</p>
+    <p><b>Easier calendar view:</b> The agent can also answer "When are these four interviewers free next week?" from Outlook availability, so panels are not built by checking calendars one at a time. IT would need to approve that access.</p>
+    <section class="scene" id="s5" aria-labelledby="t5">
+    <div class="scene-head">
+      <div><p class="eyebrow">Interactive demo</p><h2 id="t5">Try it: interview scheduling</h2></div>
+      <button class="replay" type="button" aria-label="Replay the interview scheduling walkthrough"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.6-3.7M3 2.5v3h3"/></svg>Replay</button>
+    </div>
+    <div class="scene-body">
+      <ol class="steps">
+        <li data-step="1">Ask when the panel is free</li>
+        <li data-step="2">Overlapping availability shows in one view</li>
+        <li data-step="3">Schedule once in Workday</li>
+        <li data-step="4">The Outlook invite arrives with the Teams link and the candidate on it</li>
+      </ol>
+      <div class="stage">
+        <div class="pair">
+          <div class="card" data-s="1">
+            <span class="prompt">When is the panel free next week?</span>
+            <div class="avail" id="avail"></div>
+            <p class="sample" style="margin-top:10px" data-s="2">Everyone is free Tuesday at 10am.</p>
+          </div>
+          <div class="stack">
+            <div class="card" data-s="3">
+              <h3>Workday: schedule interview</h3>
+              <div class="row"><span>Candidate</span><span>Sample Candidate</span></div>
+              <div class="row"><span>Panel</span><span>Interviewers A, B and C</span></div>
+              <div class="row"><span>Time</span><span>Tuesday 10:00 to 11:00</span></div>
+              <button class="go" type="button" tabindex="-1" style="margin-top:6px">Schedule</button>
+            </div>
+            <div class="card" data-s="4">
+              <p class="inv-title">Panel interview: Senior Controls Engineer</p>
+              <div class="row"><span>When</span><span>Tuesday 10:00 to 11:00</span></div>
+              <div class="row"><span>Attendees</span><span>Interviewers A, B and C, plus Sample Candidate (sample.candidate@example.com)</span></div>
+              <div class="row"><span>Meeting</span><span class="teams">Teams meeting link added automatically</span></div>
+            </div>
+          </div>
+        </div>
+        <p class="foot">To confirm: whether the candidate receives this invite directly or an email from Workday.</p>
+      </div>
+    </div>
+  </section>
+  </section>
+
+  <section class="sec" id="results">
+    <h2 class="sh">Results we expect</h2>
+    <p>Recruiters get hours back, the numbers become reliable, and candidates hear from us on time. My early estimate is 5 to 10 hours a week back per recruiter, which we should confirm by tracking time on these tasks for two weeks before launch.</p>
+    <div class="tablewrap"><table class="t"><thead><tr><th scope="col">Outcome</th><th scope="col">Today</th><th scope="col">With the agent</th><th scope="col">How we would measure it</th></tr></thead><tbody><tr><td>Time</td><td>Benchmarks rebuilt by hand, EU data entered three times, follow-ups tracked manually, stats pulled from two systems, interviews scheduled in two places</td><td>One request for a benchmark, one entry for EU roles, automatic follow-ups, stats in one place, interviews scheduled in one step</td><td>Hours per week on these tasks, before and after</td></tr><tr><td>Accuracy</td><td>LinkedIn applicants can be counted twice, and the tracker and Workday can disagree</td><td>Each candidate counted once, with one source of truth</td><td>Mismatches found between the tracker and Workday</td></tr><tr><td>Candidate experience</td><td>Silence after a first email, uneven follow-up</td><td>A follow-up about 7 days after silence, and every reply handled</td><td>Reply rate and time to first response</td></tr><tr><td>EU compliance</td><td>Consent and retention dates remembered by hand</td><td>Built into the form and checked every time</td><td>Records with complete consent and retention dates</td></tr><tr><td>Leadership confidence</td><td>Numbers differ depending on who pulled them</td><td>One dashboard and one benchmark method</td><td>Requests to re-pull or explain data</td></tr></tbody></table></div>
+  </section>
+
+  <section class="sec" id="rollout">
+    <h2 class="sh">Rollout</h2>
+    <p>Start with the quick win, build the core pieces next, and begin the dashboard access requests on day one.</p>
+    <div class="phases">
+      <div class="phase"><h3>Phase 1: Quick win</h3><p class="when">Weeks 1 to 2</p><ul><li>3. Follow-ups and replies</li><li>1. Agent prototype demo</li><li>5. Interview scheduling</li></ul></div>
+      <div class="phase"><h3>Phase 2: Core build</h3><p class="when">Weeks 3 to 8</p><ul><li>2. EU intake form</li><li>1. Agent with real data</li></ul></div>
+      <div class="phase"><h3>Phase 3: Dashboard</h3><p class="when">Months, depends on access</p><ul><li>4. Dashboard (Excel first)</li><li>Live Workday connection</li></ul></div>
+    </div>
+    <p>The dashboard is the longest piece because it depends on LinkedIn RSC, a Workday report and agreed metric definitions. Starting those requests in week 1 keeps it moving while the other phases deliver.</p>
+  </section>
+
+  <section class="sec" id="questions">
+    <h2 class="sh">Questions to ask</h2>
+    <p>These are the answers we need before building, grouped by project.</p>
+    <p class="whoask">Who to ask: ________</p>
+    <p class="whoask">Who to reach out to: ________</p>
+    <div class="tablewrap"><table class="t"><thead><tr><th scope="col">Project</th><th scope="col">Question</th><th scope="col">What we know</th><th scope="col">Who to ask</th></tr></thead><tbody><tr><td>1. Comp benchmark agent</td><td>Can I access pay bands (ranges, not individual salaries), and what confidentiality rules apply?</td><td>Pay information can be accessed in Workday. To confirm: whether formal pay bands exist. Confidentiality rules not yet known.</td><td></td></tr><tr><td>1. Comp benchmark agent</td><td>What rules should be built in: target percentile, geographic differentials, EU currency handling?</td><td>Compare what competitors pay in the same market. Also show a skills-only view with the location requirement loosened.</td><td></td></tr><tr><td>2. EU intake</td><td>Why does the Excel tracker exist, and can Workday hold those fields instead?</td><td></td><td></td></tr><tr><td>2. EU intake</td><td>Which fields are required in each of the three places, and which Workday steps must stay manual?</td><td></td><td></td></tr><tr><td>2. EU intake</td><td>What are the consent and retention rules by country, and does the process need a privacy review?</td><td></td><td></td></tr><tr><td>2. EU intake</td><td>Is there an approved vendor list and a standard data processing agreement for EU vendors?</td><td></td><td></td></tr><tr><td>3. Follow-ups</td><td>Does my license include Power Automate, and is automation on Outlook sent mail allowed?</td><td></td><td></td></tr><tr><td>3. Follow-ups</td><td>Must a person approve every follow-up, or can approved templates send on their own?</td><td>Preference: no one should have to approve every follow-up; approved templates send on their own.</td><td></td></tr><tr><td>3. Follow-ups</td><td>Can Workday accept an automated note or "not interested" status from another system?</td><td></td><td></td></tr><tr><td>4. Dashboard</td><td>Is LinkedIn Recruiter System Connect licensed and turned on?</td><td></td><td></td></tr><tr><td>4. Dashboard</td><td>Can a scheduled Workday report be provided with candidate, requisition, stage, source, dates and region?</td><td></td><td></td></tr><tr><td>4. Dashboard</td><td>Do we have Power BI, or should the first version be Excel on SharePoint?</td><td></td><td></td></tr><tr><td>4. Dashboard</td><td>Who signs off on metric definitions such as time to fill and offer acceptance?</td><td></td><td></td></tr><tr><td>5. Interview scheduling</td><td>Is the Outlook interview scheduling integration turned on in Workday, and can it be enabled?</td><td></td><td></td></tr><tr><td>5. Interview scheduling</td><td>Is a web conference integration set up so Workday adds the Teams link automatically?</td><td></td><td></td></tr><tr><td>5. Interview scheduling</td><td>Does the candidate get the calendar invite directly, or only an email from Workday?</td><td></td><td></td></tr><tr><td>5. Interview scheduling</td><td>Can the agent read interviewer availability from Outlook calendars for a shared calendar view?</td><td></td><td></td></tr><tr><td>All</td><td>Is Copilot Studio licensed, and does my contractor status limit access to any of this?</td><td></td><td></td></tr></tbody></table></div>
+  </section>
+</div>
+<script>
+(() => {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  class Cancel extends Error {}
+  const tokens = new Map();
+  const played = new Set();
+
+  const SC = { min: 50, max: 130 };
+  const pct = v => (v - SC.min) / (SC.max - SC.min) * 100;
+  const CITIES = {
+    Madrid: { name: 'Madrid, Spain', cur: 'EUR', p25: 78, p50: 86, p75: 95, bonus: 10, wd: [68, 80, 92] },
+    Berlin: { name: 'Berlin, Germany', cur: 'EUR', p25: 84, p50: 93, p75: 104, bonus: 10, wd: [74, 86, 98] },
+    Austin: { name: 'Austin, Texas', cur: 'USD', p25: 96, p50: 108, p75: 118, bonus: 12, wd: [88, 100, 112] }
+  };
+  const YRS = { a: { f: 0.88, t: '3 to 5 years' }, b: { f: 1, t: '6 to 9 years' }, c: { f: 1.1, t: '10 or more years' } };
+  const LOOSEN = { 'l-loc': { f: 0.95, t: 'location' }, 'l-ind': { f: 0.96, t: 'industry' }, 'l-cert': { f: 0.97, t: 'certifications' } };
+  const REPLIES = {
+    yes: 'Tagged: interested. Follow-ups stop and the agent drafts a note asking you to set up a screen.',
+    later: 'Not tagged as a decline. The reply goes to you to decide, and no more emails go out until you do.',
+    no: 'Tagged: not interested. All further emails stop and a Workday note is drafted for you to paste in.'
+  };
+
+  const fmt = v => (Math.round(v * 10) / 10) + 'K';
+  function setBench(el) {
+    const c = CITIES[$('#city', el).value];
+    const y = YRS[$('#yrs', el).value];
+    let f = y.f;
+    const loosened = [];
+    Object.keys(LOOSEN).forEach(id => { if ($('#' + id, el).checked) { f *= LOOSEN[id].f; loosened.push(LOOSEN[id].t); } });
+    const p25 = c.p25 * f, p50 = c.p50 * f, p75 = c.p75 * f;
+    const bonus = p50 * c.bonus / 100;
+    const [wmin, wmid, wmax] = c.wd;
+    const lo = Math.min(p25, wmin) - 6, hi = Math.max(p75, wmax) + 6;
+    const pct = v => (v - lo) / (hi - lo) * 100;
+    const bar = $('.bar.mkt', el), wbar = $('.bar.wd', el);
+    bar.style.left = pct(p25) + '%'; bar.style.width = (pct(p75) - pct(p25)) + '%';
+    wbar.style.left = pct(wmin) + '%'; wbar.style.width = (pct(wmax) - pct(wmin)) + '%';
+    $('.ptick.med', el).style.left = pct(p50) + '%';
+    $('.ptick.mid', el).style.left = pct(wmid) + '%';
+    const t1 = $('.tl-med', el), t2 = $('.tl-mid', el);
+    t1.style.left = pct(p50) + '%'; t1.textContent = 'median ' + fmt(p50);
+    t2.style.left = pct(wmid) + '%'; t2.textContent = 'midpoint ' + fmt(wmid);
+    $('.cur', el).textContent = c.name + ', ' + c.cur + ', ' + y.t + '. Sample data, not real figures.';
+    $('#matchnote', el).textContent = loosened.length ? 'Loosened: ' + loosened.join(', ') + '. The pay below is lower than a full match.' : 'Matching everything on the job description.';
+    $('#k-base', el).textContent = fmt(p50) + ' ' + c.cur + ' (range ' + fmt(p25) + ' to ' + fmt(p75) + ')';
+    $('#k-bonus', el).textContent = fmt(bonus) + ' (' + c.bonus + '% target)';
+    $('#k-total', el).textContent = fmt(p50 + bonus) + ' ' + c.cur;
+    $('#k-wd', el).textContent = fmt(wmin) + ' to ' + fmt(wmax) + ', midpoint ' + fmt(wmid);
+    const gap = p50 - wmid;
+    $('#k-find', el).textContent = gap > 0
+      ? 'Market base is ' + fmt(gap) + ' above the Workday midpoint. Offers in this example usually stay at or below midpoint, so expect to offer up to ' + fmt(wmid) + ' and explain the gap, or loosen requirements.'
+      : 'Market base is at or below the Workday midpoint, so there is room to offer within the usual limit.';
+  }
+
+  const DAYS = ['Mon', 'Tue', 'Wed', 'Thu'];
+  const SLOTS = ['10am', '2pm'];
+  const PANEL = [
+    { who: 'Interviewer A', free: [0, 0, 1, 1, 0, 1, 1, 0] },
+    { who: 'Interviewer B', free: [1, 0, 1, 0, 1, 0, 0, 1] },
+    { who: 'Interviewer C', free: [0, 1, 1, 1, 1, 0, 0, 0] }
+  ];
+  function buildGrid() {
+    const g = $('#avail');
+    let h = '<div></div>';
+    DAYS.forEach(d => { h += '<div class="hd" style="grid-column: span 2">' + d + '</div>'; });
+    h += '<div></div>';
+    for (let i = 0; i < 8; i++) h += '<div class="hd">' + SLOTS[i % 2] + '</div>';
+    PANEL.forEach(p => {
+      h += '<div class="who">' + p.who + '</div>';
+      p.free.forEach((f, i) => {
+        const label = p.who + ', ' + DAYS[Math.floor(i / 2)] + ' ' + SLOTS[i % 2] + ', ' + (f ? 'free' : 'busy');
+        h += '<div class="cell ' + (f ? 'free' : 'busy') + '" data-col="' + i + '" role="img" aria-label="' + label + '"></div>';
+      });
+    });
+    g.innerHTML = h;
+  }
+  function commonCols() {
+    const out = [];
+    for (let i = 0; i < 8; i++) if (PANEL.every(p => p.free[i])) out.push(i);
+    return out;
+  }
+
+  function reveal(el, n) {
+    $$('[data-s="' + n + '"]', el).forEach(x => x.classList.add('in'));
+    setStep(el, n);
+  }
+  function setStep(el, n) {
+    $$('.steps li', el).forEach(li => {
+      const k = Number(li.dataset.step);
+      li.classList.toggle('active', k === n);
+      li.classList.toggle('done', k < n);
+    });
+  }
+  async function typeInto(node, wait) {
+    const full = node.dataset.type;
+    if (reduce) { node.textContent = full; return; }
+    node.textContent = '';
+    for (let i = 1; i <= full.length; i++) {
+      node.textContent = full.slice(0, i);
+      await wait(26);
+    }
+  }
+  async function countTo(node, wait) {
+    const target = Number(node.dataset.count);
+    const suffix = node.dataset.suffix || '';
+    const steps = reduce ? 1 : 22;
+    for (let i = 1; i <= steps; i++) {
+      node.textContent = Math.round(target * i / steps) + suffix;
+      await wait(32);
+    }
+  }
+  async function press(btn, wait) {
+    btn.classList.add('pressed');
+    await wait(350);
+    btn.classList.remove('pressed');
+  }
+
+  const RUN = {
+    async s1(el, wait) {
+      reveal(el, 1);
+      await typeInto($('.msg.user [data-type]', el), wait);
+      await wait(500);
+      reveal(el, 2); await wait(1100);
+      reveal(el, 3); await wait(1200);
+      reveal(el, 4); await wait(1800);
+      setStep(el, 5);
+      for (const id of ['l-loc', 'l-ind', 'l-cert']) { $('#' + id, el).checked = true; setBench(el); await wait(1000); }
+      await wait(600);
+    },
+    async s2(el, wait) {
+      reveal(el, 1);
+      for (const n of $$('.form [data-type]', el)) { await typeInto(n, wait); await wait(160); }
+      await wait(300);
+      setStep(el, 2); await press($('.go', el), wait); await wait(250);
+      reveal(el, 3); await wait(1600);
+      reveal(el, 4); await wait(1200);
+    },
+    async s3(el, wait) {
+      reveal(el, 1); await wait(1300);
+      reveal(el, 2); await wait(1300);
+      reveal(el, 3); await wait(1300);
+      reveal(el, 4); await wait(1500);
+      reveal(el, 5); await wait(1200);
+    },
+    async s4(el, wait) {
+      reveal(el, 1); await wait(1200);
+      reveal(el, 2);
+      await Promise.all($$('[data-count]', el).map(n => countTo(n, wait)));
+      await wait(400);
+      reveal(el, 3);
+      const segs = $$('.seg', el);
+      for (const s of segs) { s.style.width = s.dataset.w + '%'; await wait(180); }
+      await wait(900);
+      reveal(el, 4); await wait(1000);
+    },
+    async s5(el, wait) {
+      reveal(el, 1); await wait(1400);
+      reveal(el, 2);
+      commonCols().forEach(i => $$('.cell[data-col="' + i + '"]', el).forEach(c => c.classList.add('common')));
+      await wait(1400);
+      reveal(el, 3); await wait(900);
+      await press($('[data-s="3"] .go', el), wait); await wait(300);
+      reveal(el, 4); await wait(1400);
+    }
+  };
+
+  function reset(el) {
+    el.classList.add('armed');
+    $$('[data-s].in', el).forEach(n => n.classList.remove('in'));
+    $$('.steps li', el).forEach(li => li.classList.remove('active', 'done'));
+    $$('[data-type]', el).forEach(n => { n.textContent = ''; });
+    $$('[data-count]', el).forEach(n => { n.textContent = '0'; });
+    $$('.seg', el).forEach(n => {
+      n.style.transition = 'none';
+      n.style.width = '0%';
+      void n.offsetWidth;
+      n.style.transition = '';
+    });
+    $$('.pressed', el).forEach(n => n.classList.remove('pressed'));
+    $$('.cell.common', el).forEach(n => n.classList.remove('common'));
+    if ($('#city', el)) { $$('#s1 input[type=checkbox]').forEach(x => { x.checked = false; }); setBench(el); }
+  }
+  function finalize(el) {
+    el.classList.remove('armed');
+    $$('.steps li', el).forEach(li => { li.classList.remove('active'); li.classList.add('done'); });
+    $$('[data-type]', el).forEach(n => { n.textContent = n.dataset.type; });
+    $$('[data-count]', el).forEach(n => { n.textContent = n.dataset.count + (n.dataset.suffix || ''); });
+    $$('.seg', el).forEach(n => { n.style.width = n.dataset.w + '%'; });
+  }
+
+  async function play(id) {
+    const el = document.getElementById(id);
+    played.add(id);
+    const token = {};
+    tokens.set(id, token);
+    const wait = ms => new Promise((resolve, reject) => {
+      setTimeout(() => (tokens.get(id) === token ? resolve() : reject(new Cancel())), reduce ? 0 : ms);
+    });
+    reset(el);
+    try {
+      await RUN[id](el, wait);
+    } catch (e) {
+      if (e instanceof Cancel) return;
+      throw e;
+    }
+    finalize(el);
+  }
+
+  buildGrid();
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const srcSel = $('#f-source');
+  srcSel.addEventListener('change', () => { $('#f-vendor-row').hidden = srcSel.value !== 'Outside vendor'; });
+  $('#eu-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = esc($('#f-name').value.trim() || 'Sample Candidate');
+    const role = esc($('#f-role').value.trim() || 'Senior Controls Engineer');
+    const ctry = esc($('#f-country').value);
+    const src = esc(srcSel.value);
+    const vend = srcSel.value === 'Outside vendor' ? esc($('#f-vendor').value.trim() || 'Vendor name') : '';
+    const code = { Spain: 'ES', Germany: 'DE', France: 'FR', Italy: 'IT', Poland: 'PL' }[$('#f-country').value];
+    const req = esc($('#f-req').value.trim() || 'REQ-1042');
+    const hm = esc($('#f-hm').value.trim() || 'Sample Manager');
+    const eor = $('#f-eor').value ? 'EOR sent ' + $('#f-eor').value : 'EOR not yet sent';
+    const sd = $('#f-start').value ? 'Start ' + $('#f-start').value : 'Start date TBD';
+    const bg = 'Background check ' + $('#f-bg').value.toLowerCase();
+    const val = (id, label, none) => { const v = esc($(id).value.trim()); return v ? label + ' ' + v : label + ' ' + none; };
+    const pay = [val('#f-base', 'Base', 'TBD'), val('#f-bonus', 'Bonus', 'TBD'), val('#f-rsu', 'RSUs', 'none'), val('#f-sign', 'Sign-on', 'none')];
+    const items = [
+      ['Excel tracker row added', '<div class="trk">' + [['Country', code], ['Req #', req], ['Hiring manager', hm], ['Candidate', name], ['Role', role], ['Source', src + (vend ? ' (' + vend + ')' : '')], ['EOR contract sent', esc($('#f-eor').value || 'Not yet sent')], ['Start date', esc($('#f-start').value || 'TBD')], ['Background check', esc($('#f-bg').value)], ['Base comp', esc($('#f-base').value.trim() || 'TBD')], ['Bonus', esc($('#f-bonus').value.trim() || 'TBD')], ['RSUs', esc($('#f-rsu').value.trim() || 'None')], ['Sign-on', esc($('#f-sign').value.trim() || 'None')]].map(([k, v]) => '<div><small>' + k + '</small><b>' + v + '</b></div>').join('') + '</div>'],
+      ['SharePoint folder created', 'EU / ' + ctry + ' / ' + role + ' / ' + name + (vend ? ' (restricted vendor folder)' : '')],
+      ['Workday checklist ready', 'The Workday steps still to do are listed for you'],
+      ['Consent and retention dates filled in', 'From the approved rules for ' + ctry + ' (sample rule, to be confirmed)']
+    ];
+    $('#eu-out').innerHTML = items.map(([t, s]) => '<div class="out"><div class="tick">&#10003;</div><div><strong>' + t + '</strong>' + (s.indexOf('<div class="trk">') === 0 ? s : '<span>' + s + '</span>') + '</div></div>').join('');
+  });
+  $$('#s1 select, #s1 input[type=checkbox]').forEach(x => x.addEventListener('change', () => setBench(document.getElementById('s1'))));
+  $$('#replies .opt').forEach(b => b.addEventListener('click', () => {
+    $$('#replies .opt').forEach(x => x.classList.toggle('on', x === b));
+    $('#outcome').textContent = REPLIES[b.dataset.r];
+  }));
+  $$('.steps li').forEach(li => li.addEventListener('click', () => {
+    const sc = li.closest('.scene');
+    const n = Number(li.dataset.step);
+    tokens.set(sc.id, {});
+    played.add(sc.id);
+    sc.classList.add('armed');
+    $$('[data-s]', sc).forEach(x => x.classList.toggle('in', Number(x.dataset.s) <= n));
+    $$('[data-type]', sc).forEach(x => { x.textContent = x.dataset.type; });
+    $$('[data-count]', sc).forEach(x => { x.textContent = x.dataset.count + (x.dataset.suffix || ''); });
+    $$('.seg', sc).forEach(x => { x.style.width = x.dataset.w + '%'; });
+    if (sc.id === 's5') $$('.cell', sc).forEach(c => c.classList.toggle('common', n >= 2 && commonCols().includes(Number(c.dataset.col))));
+    setStep(sc, n);
+  }));
+  $$('.scene').forEach(el => {
+    $$('.seg', el).forEach(n => { n.style.width = n.dataset.w + '%'; });
+    if ($('#city', el)) setBench(el);
+    $('.replay', el).addEventListener('click', () => play(el.id));
+  });
+
+  if (!reduce && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => {
+        if (en.isIntersecting && !played.has(en.target.id)) {
+          io.unobserve(en.target);
+          play(en.target.id);
+        }
+      });
+    }, { threshold: 0.3 });
+    $$('.scene').forEach(el => io.observe(el));
+  }
+})();
+</script>
+</body>
+</html>
